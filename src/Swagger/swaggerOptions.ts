@@ -1,0 +1,515 @@
+import swaggerJsDoc from 'swagger-jsdoc';
+import swaggerUI from 'swagger-ui-express';
+
+const swaggeroptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+          title: "Swing Notes - API",
+          description: "A Simple API for storing notes or blogposts.\nCreate an account and start today!\n\n- [The Swing Notes repository](https://github.com/EgilZebra/SwingNotes-JS23-Backend.git)",
+          version: "1.0.0"
+        },
+        externalDocs: {
+          description: "See the examination intructions",
+          url: "https://gist.github.com/nz-bill/cc5d0a2a488dd4a2f466ffda8b699921"
+        },
+        servers: [
+          {
+            url: "http://127.0.0.1:9001/"
+          }
+        ],
+        
+
+        "tags": [
+          {
+            "name": "Notes",
+            "description": "Everything about your Notes"
+          },
+          {
+            "name": "User",
+            "description": "Create account or login to an existing one"
+          }
+        ],
+        "paths": {
+          "/notes": {
+            "get": {
+              "tags": [
+                "Notes"
+              ],
+              "summary": "Finds notes from logged in user",
+              "description": "get all the notes from the user that is currently loggin in.",
+              "responses": {
+                "200": {
+                  "description": "successful operation",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Note"
+                        }
+                      }
+                    }
+                  }
+                },
+                "404": {
+                  "description": "invalid request"
+                }
+              },
+              "security": [
+                {
+                  "BearerAuth": []
+                }
+              ]
+            },
+            "post": {
+              "tags": [
+                "Notes"
+              ],
+              "summary": "Add a new note to the database",
+              "description": "Add a new note to the database",
+              "requestBody": {
+                "description": "create a new note in the database",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/postNote"
+                    }
+                  }
+                },
+                "required": true
+              },
+              "responses": {
+                "200": {
+                  "description": "Successful operation"
+                },
+                "400": {
+                  "description": "invalid input"
+                },
+                "404": {
+                  "description": "Not a recognized user."
+                }
+              },
+              "security": [
+                {
+                  "BearerAuth": []
+                }
+              ]
+            },
+            "put": {
+              "tags": [
+                "Notes"
+              ],
+              "summary": "Update an existing note",
+              "description": "Update an existing note by Id",
+              "requestBody": {
+                "description": "Update an existent note in the database",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/putNote"
+                    }
+                  }
+                },
+                "required": true
+              },
+              "responses": {
+                "200": {
+                  "description": "Successful operation"
+                },
+                "400": {
+                  "description": "Invalid request"
+                },
+                "404": {
+                  "description": "User not found"
+                }
+              },
+              "security": [
+                {
+                  "BearerAuth": []
+                }
+              ]
+            }
+          },
+          "/notes/{id}": {
+            "delete": {
+              "tags": [
+                "Notes"
+              ],
+              "summary": "delete a note from the database",
+              "description": "delete a specific note from the database",
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "id",
+                  "content": {
+                    "example": {}
+                  },
+                  "required": true,
+                  "description": "The title of the note you want."
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Note Deleted!"
+                },
+                "400": {
+                  "description": "not a regonized Note"
+                },
+                "404": {
+                  "description": "Not a recognized User"
+                }
+              },
+              "security": [
+                {
+                  "BearerAuth": []
+                }
+              ]
+            }
+          },
+          "/notes/search/{title}": {
+            "get": {
+              "tags": [
+                "Notes"
+              ],
+              "summary": "find a single note by title",
+              "description": "returns a single note",
+              "parameters": [
+                {
+                  "in": "path",
+                  "name": "title",
+                  "content": {
+                    "example": {}
+                  },
+                  "required": true,
+                  "description": "The title of the note you want."
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "successful operation",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/Note"
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  "description": "not a existing note"
+                },
+                "404": {
+                  "description": "not a recognized user"
+                }
+              },
+              "security": [
+                {
+                  "BearerAuth": []
+                }
+              ]
+            }
+          },
+          "/user/sigup": {
+            "post": {
+              "tags": [
+                "User"
+              ],
+              "summary": "Create user",
+              "description": "Create a new account for you notes.",
+              "requestBody": {
+                "description": "Created user object",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Signup"
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "successful operation",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/token"
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  "description": "faulty reqest"
+                }
+              }
+            }
+          },
+          "/user/login": {
+            "post": {
+              "tags": [
+                "User"
+              ],
+              "summary": "Logs user into the system",
+              "description": "Log into your account",
+              "requestBody": {
+                "description": "Username and password for the account.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Login"
+                    }
+                  }
+                },
+                "required": true
+              },
+              "responses": {
+                "200": {
+                  "description": "successful operation",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/token"
+                      }
+                    }
+                  }
+                },
+                "400": {
+                  "description": "Invalid password supplied"
+                },
+                "404": {
+                  "description": "Invalid Username supplied"
+                }
+              }
+            }
+          }
+        },
+        "components": {
+          "schemas": {
+            "Note": {
+              "type": "object",
+              "properties": {
+                "user": {
+                  "type": "string",
+                  "example": "12..."
+                },
+                "noteId": {
+                  "type": "integer",
+                  "example": "19..."
+                },
+                "title": {
+                  "type": "string",
+                  "example": "My journey"
+                },
+                "text": {
+                  "type": "string",
+                  "example": "it was the first winter day..."
+                },
+                "createdAt": {
+                  "type": "object",
+                  "format": "date-time"
+                },
+                "modifiedAt": {
+                  "type": "object",
+                  "description": "date-time"
+                }
+              },
+              "xml": {
+                "name": "Note"
+              }
+            },
+            "Signup": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "Namn"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "password"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "mail.adresss@mail.provider"
+                }
+              },
+              "xml": {
+                "name": "signup"
+              }
+            },
+            "Login": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "Namn"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password"
+                }
+              },
+              "xml": {
+                "name": "login"
+              }
+            },
+            "postNote": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "Namn"
+                },
+                "title": {
+                  "type": "string",
+                  "example": "My note"
+                },
+                "text": {
+                  "type": "string",
+                  "example": "this is why I'm great"
+                }
+              },
+              "xml": {
+                "name": "postnote"
+              }
+            },
+            "putNote": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "Namn"
+                },
+                "noteId": {
+                  "type": "string",
+                  "example": "23..."
+                },
+                "text": {
+                  "type": "string",
+                  "example": "Detta är min updaterade text.."
+                }
+              },
+              "xml": {
+                "name": "putNote"
+              }
+            },
+            "deleteNote": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "format": "Namn"
+                },
+                "NoteId": {
+                  "type": "string",
+                  "example": "34536"
+                }
+              },
+              "xml": {
+                "name": "deleteNote"
+              }
+            },
+            "searchNote": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "Namn"
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Mitt äventyr"
+                }
+              },
+              "xml": {
+                "name": "searchNote"
+              }
+            },
+            "token": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "43..."
+                }
+              },
+              "xml": {
+                "name": "searchNote"
+              }
+            }
+          },
+          "requestBodies": {
+            "signup": {
+              "description": "Signup info that needs to be submitted!",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Signup"
+                  }
+                }
+              }
+            },
+            "login": {
+              "description": "Fill the form to login",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Login"
+                  }
+                }
+              }
+            },
+            "searchNote": {
+              "description": "search for a specific note by title",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/searchNote"
+                  }
+                }
+              }
+            },
+            "deleteNote": {
+              "description": "delete a specific note",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/deleteNote"
+                  }
+                }
+              }
+            },
+            "putNote": {
+              "description": "change a specific note",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/putNote"
+                  }
+                }
+              }
+            },
+            "postNote": {
+              "description": "Add a note to the database",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/postNote"
+                  }
+                }
+              }
+            }
+          },
+          "securitySchemes": {
+            "BearerAuth": {
+              "type": "http",
+              "scheme": "bearer"
+            }
+          }
+        }
+      }, apis: ['../dist/routes/.js']
+    }
+
+const specs = swaggerJsDoc(swaggeroptions)
+export const swagServe = swaggerUI.serve
+export const swagSetup = swaggerUI.setup(specs) 

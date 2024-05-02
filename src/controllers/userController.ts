@@ -22,7 +22,7 @@ export const userSignup = async ( req: Request, res: Response ) =>{
             Users.insert(user);
             const token = jwt.sign( {user: user.userId}, String(process.env.JWT_SECRET) , {expiresIn: '30m'});
             console.log(`${user.username}: your account have been created`)
-            res.status(200).json(token);
+            res.status(200).json(`token: ${token}`);
         } else {
             res.status(400).json('faulty request')
         }
@@ -42,7 +42,7 @@ export const userLogin = async ( req: Request, res: Response) => {
         } else if ( await comparePasswords(login.password, user.password) ) {
             const token = jwt.sign( {user: user.userId}, String(process.env.JWT_SECRET) , {expiresIn: '30m'});
             console.log('Login sucessful!')
-            res.status(200).json(token);
+            res.status(200).json(`token: ${token}`);
         } else {
             res.status(400).json('Incorrect password!')
         }

@@ -3,8 +3,8 @@ import { deleteNotes, getNotes, postNotes, putNotes, searchNotes } from '../cont
 
 export const notes: Router = express.Router()
 
-notes.get('/notes',  getNotes)
-notes.post('/notes', postNotes)
-notes.put('/notes', putNotes)
-notes.delete('/notes', deleteNotes)
-notes.get('/notes/search', searchNotes )
+notes.get('/',  getNotes);
+notes.post('/', postNotes);
+notes.put('/', putNotes);
+notes.delete('/:id', deleteNotes);
+notes.get('/search/:title', searchNotes);

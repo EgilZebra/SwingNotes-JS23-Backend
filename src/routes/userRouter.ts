@@ -3,5 +3,5 @@ import { userLogin, userSignup } from '../controllers/userController';
 
 export const user: Router = express.Router()
 
-user.post('/user/signup', userSignup)
-user.post('/user/login', userLogin)
+user.post('/signup', userSignup)
+user.post('/login', userLogin)

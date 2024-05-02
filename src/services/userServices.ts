@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs'
-import { Users } from "../controllers/userController";
+import { Users } from "../models/repository";
 import { Account } from "../types/interfaces";
 
 export async function hashPassword( password: string ) {

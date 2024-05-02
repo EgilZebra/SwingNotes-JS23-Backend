@@ -79,9 +79,9 @@ export const putNotes = async (req: Request, res: Response) => {
 // Delete a specific note in Notes database
 export const deleteNotes = async (req: Request, res: Response) => {
 
-    const user: Account | null = await getUser( 'username', req.body.username)
-    const userNote: Note | null = await getNote( 'id', req.body.id)
-    const notesDB = Notes;
+    const userId: string = await userFromToken(req.headers.authorization)
+    const user: Account | null = await getUser( 'id', userId)
+    const userNote: Note | null = await getNote( 'id', req.params.id)
 
     try {
         if (user === null) {
@@ -89,7 +89,7 @@ export const deleteNotes = async (req: Request, res: Response) => {
         } else if ( userNote === null ) {
             res.status(400).json('Not a recognized Note!')
         } else {
-        notesDB.remove({ noteId: req.body.id });
+        Notes.remove({ noteId: req.params.id });
         res.status(200).json('Your Note has been removed!')
         }
     } catch (error: unknown) {
@@ -100,8 +100,9 @@ export const deleteNotes = async (req: Request, res: Response) => {
 // Search for a specific note in the Notes database
 export const searchNotes = async ( req: Request, res: Response) =>{
     
-    const user: Account | null = await getUser( 'username', req.body.username)
-    const userNote: Note | null = await getNote('title', req.body.title)
+    const userId: string = await userFromToken(req.headers.authorization)
+    const user: Account | null = await getUser( 'id', userId)
+    const userNote: Note | null = await getNote('title', String(req.params.title))
 
     try {
         if (user === null) {
